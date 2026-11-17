@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ModpackWorkbench.ViewModels"
+             x:Class="ModpackWorkbench.Views.PresetsView">
+
+  <StackPanel Spacing="16">
+    <!-- Presets -->
+    <TextBlock Text="Проверенные готовые сборки" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" />
+    <ItemsControl ItemsSource="{Binding Presets}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:PresetCardViewModel">
+          <Border Classes="ui-block" Padding="16" Margin="0,0,0,10">
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" TextWrapping="Wrap" />
+                  <Border HorizontalAlignment="Left" Padding="8,2" CornerRadius="4"
+                          Background="#222563EB" BorderBrush="#6660A5FA" BorderThickness="1">
+                    <TextBlock Text="{Binding Badge}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
+                  </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Classes="ui-btn" VerticalAlignment="Top"
+                        Command="{Binding ToggleExpandedCommand}" Content="{Binding ExpandLabel}" />
+              </Grid>
+
+              <TextBlock Text="{Binding Description}" FontSize="12.5" Foreground="{DynamicResource Ink2Brush}" TextWrapping="Wrap" />
+              <TextBlock FontSize="11.5" Foreground="#FDE68A" TextWrapping="Wrap">
+                <Run Text="Риск краша / условия: " FontWeight="SemiBold" />
+                <Run Text="{Binding CrashRisk}" />
+              </TextBlock>
+
+              <!-- Expanded Mod List -->
+              <Border IsVisible="{Binding IsExpanded}" Background="{DynamicResource SurfaceSubBrush}"
+                      CornerRadius="6" Padding="10">
+                <ItemsControl ItemsSource="{Binding ResolvedMods}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                        <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="0"
+                                HorizontalAlignment="Left" Cursor="Hand"
+                                Command="{Binding $parent[ItemsControl].DataContext.OpenModCommand}"
+                                CommandParameter="{Binding}">
+                          <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Ink1Brush}" />
+                        </Button>
+                        <TextBlock Grid.Column="1" Text="{Binding Category}" FontSize="11"
+                                   Foreground="{DynamicResource Ink3Brush}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="ui-btn-accent" Command="{Binding LoadToBuilderCommand}" Content="Загрузить в Клипание" />
+                <Button Classes="ui-btn" Command="{Binding LoadToCheckerCommand}" Content="Открыть в Чекере" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <!-- Golden Standard -->
+    <TextBlock Text="Золотой стандарт оптимизации Forge 1.20.1" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" Margin="0,6,0,0" />
+    <Border Classes="ui-block" Padding="12">
+      <ItemsControl ItemsSource="{Binding GoldenStandard}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:GoldenStandardItemViewModel">
+            <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="6,6">
+              <Grid ColumnDefinitions="240,*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Ink1Brush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Role}" FontSize="12"
+                           Foreground="{DynamicResource Ink2Brush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Classes="ui-btn" IsVisible="{Binding HasResolvedMod}"
+                        Command="{Binding OpenDetailCommand}" Content="Инфо" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Border>
+  </StackPanel>
+</UserControl>

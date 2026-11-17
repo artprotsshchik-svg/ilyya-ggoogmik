@@ -1,0 +1,377 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ModpackWorkbench.ViewModels"
+             xmlns:conv="using:ModpackWorkbench.Converters"
+             x:Class="ModpackWorkbench.Views.AssemblyBuilderView">
+
+  <StackPanel Spacing="14">
+    <!-- Header Bar -->
+    <Border Classes="ui-block" Padding="14">
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBlock Text="Клипание сборок" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" />
+            <TextBlock FontSize="12" FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink2Brush}" VerticalAlignment="Center">
+              <Run Text="{Binding SelectedCount}" />
+              <Run Text=" модов" />
+            </TextBlock>
+          </StackPanel>
+
+          <WrapPanel Grid.Column="1" Orientation="Horizontal">
+            <WrapPanel.Styles>
+              <Style Selector="WrapPanel > :is(Control)">
+                <Setter Property="Margin" Value="0,0,6,6" />
+              </Style>
+            </WrapPanel.Styles>
+            <ItemsControl ItemsSource="{Binding Presets}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="6" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Classes="ui-btn"
+                          Command="{Binding $parent[UserControl].DataContext.LoadPresetCommand}"
+                          CommandParameter="{Binding}"
+                          Content="{Binding Name}" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Button Classes="ui-btn-accent"
+                    IsVisible="{Binding IssueCount}"
+                    Command="{Binding FixIssuesCommand}">
+              <TextBlock>
+                <Run Text="Исправить (" /><Run Text="{Binding IssueCount}" /><Run Text=")" />
+              </TextBlock>
+            </Button>
+
+            <Button Classes="ui-btn" Command="{Binding ResetAssemblyCommand}" Content="Сброс" />
+          </WrapPanel>
+        </Grid>
+
+        <!-- Smart Configurator -->
+        <Border Background="{DynamicResource SurfaceSubBrush}" CornerRadius="6" Padding="10">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <Button Grid.Column="0" Command="{Binding ToggleSmartConfigCommand}"
+                      Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Left" Cursor="Hand">
+                <TextBlock Text="Умный авто-конструктор сборки (GPU / Режим / Шейдеры / Create / Порты)"
+                           FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
+              </Button>
+              <Button Grid.Column="1" Classes="ui-btn-accent"
+                      Command="{Binding BuildSmartCommand}" Content="Пересобрать умно" />
+            </Grid>
+
+            <StackPanel IsVisible="{Binding SmartConfigOpen}" Spacing="8">
+              <WrapPanel Orientation="Horizontal">
+                <WrapPanel.Styles>
+                  <Style Selector="WrapPanel > :is(Control)">
+                    <Setter Property="Margin" Value="0,0,12,6" />
+                  </Style>
+                </WrapPanel.Styles>
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Видеокарта" FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+                  <ComboBox ItemsSource="{Binding GpuOptions}"
+                            SelectedValue="{Binding Gpu}"
+                            SelectedValueBinding="{Binding Key}"
+                            DisplayMemberBinding="{Binding Label}" Width="190" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Режим игры" FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+                  <ComboBox ItemsSource="{Binding ModeOptions}"
+                            SelectedValue="{Binding Mode}"
+                            SelectedValueBinding="{Binding Key}"
+                            DisplayMemberBinding="{Binding Label}" Width="210" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Цель" FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+                  <ComboBox ItemsSource="{Binding GoalOptions}"
+                            SelectedValue="{Binding Goal}"
+                            SelectedValueBinding="{Binding Key}"
+                            DisplayMemberBinding="{Binding Label}" Width="175" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Стратегия портов" FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+                  <ComboBox ItemsSource="{Binding PortStrategyOptions}"
+                            SelectedValue="{Binding PortStrategy}"
+                            SelectedValueBinding="{Binding Key}"
+                            DisplayMemberBinding="{Binding Label}" Width="190" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <TextBlock Text="Рецепты (JEI/EMI)" FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+                  <ComboBox ItemsSource="{Binding RecipeViewerOptions}"
+                            SelectedValue="{Binding RecipeViewer}"
+                            SelectedValueBinding="{Binding Key}"
+                            DisplayMemberBinding="{Binding Label}" Width="170" />
+                </StackPanel>
+              </WrapPanel>
+
+              <WrapPanel Orientation="Horizontal">
+                <WrapPanel.Styles>
+                  <Style Selector="WrapPanel > :is(Control)">
+                    <Setter Property="Margin" Value="0,0,16,4" />
+                  </Style>
+                </WrapPanel.Styles>
+                <CheckBox IsChecked="{Binding UseShaders}" Content="Играю с шейдерами" FontSize="12" />
+                <CheckBox IsChecked="{Binding UseCreate}" Content="Create / тяжёлая индустрия" FontSize="12" />
+                <CheckBox IsChecked="{Binding AllowSinytra}" Content="Разрешить Sinytra Connector (Fabric)" FontSize="12" />
+              </WrapPanel>
+
+              <!-- Smart Notes -->
+              <ItemsControl ItemsSource="{Binding SmartNotes}" IsVisible="{Binding SmartNotes.Count}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}"
+                               TextWrapping="Wrap" Margin="0,1" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Search & Slot Controls -->
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox Grid.Column="0" Classes="ui-input"
+                   Text="{Binding SlotSearch, UpdateSourceTrigger=PropertyChanged}"
+                   Watermark="Фильтр слотов и модов по названию или назначению..." />
+          <Button Grid.Column="1" Margin="8,0,0,0" Classes="ui-btn"
+                  Command="{Binding ToggleStrictExclusiveCommand}"
+                  Content="{Binding StrictExclusive, Converter={x:Static conv:BoolToActiveStringConverter.Instance}, ConverterParameter='🔒 1 мод на слот|🔓 Свободный выбор'}" />
+        </Grid>
+
+        <!-- Notice Banner -->
+        <Border IsVisible="{Binding ActionNotice, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                Background="#262563EB" BorderBrush="#6660A5FA" BorderThickness="1" CornerRadius="6" Padding="10,6">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding ActionNotice}" FontSize="12" Foreground="#BFDBFE" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <Button Grid.Column="1" Classes="ui-btn" Padding="6,2" Command="{Binding DismissNoticeCommand}" Content="✕" />
+          </Grid>
+        </Border>
+      </StackPanel>
+    </Border>
+
+    <!-- Multiplayer Quick-Add Block -->
+    <Border Classes="ui-block" Padding="0">
+      <StackPanel>
+        <Border Background="{DynamicResource SurfaceSubBrush}" BorderBrush="{DynamicResource BorderSoftBrush}"
+                BorderThickness="0,0,0,1" Padding="14,8">
+          <Grid ColumnDefinitions="*,Auto">
+            <Button Grid.Column="0" Command="{Binding ToggleMultiplayerSectionCommand}"
+                    Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Left" Cursor="Hand">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Для мультиплеера и серверов" FontSize="13.5" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Ink1Brush}" />
+                <TextBlock FontSize="11.5" FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink2Brush}" VerticalAlignment="Center">
+                  <Run Text="(" /><Run Text="{Binding ActiveMultiplayerCount}" /><Run Text="/4)" />
+                </TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="ui-btn-accent"
+                    Command="{Binding ToggleMultiplayerPackCommand}"
+                    Content="Добавить / Убрать пакет (4)" />
+          </Grid>
+        </Border>
+
+        <ItemsControl IsVisible="{Binding MultiplayerOpen}" ItemsSource="{Binding MultiplayerMods}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:BuilderModRowViewModel">
+              <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="14,7">
+                <Grid ColumnDefinitions="4,Auto,*,Auto">
+                  <Border Grid.Column="0" CornerRadius="2"
+                          Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                  <CheckBox Grid.Column="1" Margin="8,0" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                            Command="{Binding ToggleCommand}" />
+                  <StackPanel Grid.Column="2" Spacing="1">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                      <TextBlock IsVisible="{Binding ShowSinytraTag}" Text="Sinytra" FontSize="10"
+                                 FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink3Brush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding ReasonText}" FontSize="11" Foreground="{DynamicResource Ink2Brush}"
+                               TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                    <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                    <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- Optimization & EMI Slots -->
+    <TextBlock Text="ОПТИМИЗАЦИЯ И EMI" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Ink2Brush}" Margin="2,4,0,0" />
+    <ItemsControl ItemsSource="{Binding OptimizationBuckets}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:BuilderBucketViewModel">
+          <Border Classes="ui-block" Margin="0,0,0,8">
+            <StackPanel>
+              <Border Background="{DynamicResource SurfaceSubBrush}" BorderBrush="{DynamicResource BorderSoftBrush}"
+                      BorderThickness="0,0,0,1" Padding="14,8">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="0" Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                      <TextBlock IsVisible="{Binding HasSelected}" FontSize="11" FontFamily="Consolas, monospace"
+                                 Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center">
+                        <Run Text="(" /><Run Text="{Binding SelectedCount}" /><Run Text=")" />
+                      </TextBlock>
+                    </StackPanel>
+                    <TextBlock IsVisible="{Binding ShowDescriptions}" Text="{Binding Description}" FontSize="11"
+                               Foreground="{DynamicResource Ink2Brush}" TextWrapping="Wrap" />
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Classes="ui-btn" IsVisible="{Binding ShowSelectLeaderButton}"
+                            Command="{Binding SelectLeaderCommand}" Content="+ Лидер" />
+                    <Button Classes="ui-btn" IsVisible="{Binding HasSelected}"
+                            Command="{Binding ClearSlotCommand}" Content="Очистить" />
+                    <Button Classes="ui-btn" IsVisible="{Binding HasAddons}"
+                            Command="{Binding ToggleAddonsCommand}" Content="{Binding AddonsToggleLabel}" />
+                    <Button Classes="ui-btn" IsVisible="{Binding HasHidden}"
+                            Command="{Binding ToggleHiddenCommand}" Content="{Binding HiddenToggleLabel}" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+              <!-- Core Mods -->
+              <ItemsControl ItemsSource="{Binding PrimaryCoreMods}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BuilderModRowViewModel">
+                    <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="14,7">
+                      <Grid ColumnDefinitions="4,Auto,*,Auto">
+                        <Border Grid.Column="0" CornerRadius="2"
+                                Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                        <CheckBox Grid.Column="1" Margin="8,0" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                  Command="{Binding ToggleCommand}" />
+                        <StackPanel Grid.Column="2" Spacing="1">
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                            <TextBlock IsVisible="{Binding IsCoreExclusive}" Text="· 1 в слоте" FontSize="10" Foreground="{DynamicResource Ink3Brush}" VerticalAlignment="Center" />
+                            <TextBlock IsVisible="{Binding ShowSinytraTag}" Text="Sinytra" FontSize="10" FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink3Brush}" VerticalAlignment="Center" />
+                          </StackPanel>
+                          <TextBlock Text="{Binding ReasonText}" FontSize="11" Foreground="{DynamicResource Ink2Brush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                          <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                          <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <!-- Addon Mods -->
+              <ItemsControl IsVisible="{Binding IsAddonsExpanded}" ItemsSource="{Binding AddonMods}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BuilderModRowViewModel">
+                    <Border Background="{DynamicResource SurfaceSubBrush}" BorderBrush="{DynamicResource BorderSoftBrush}"
+                            BorderThickness="0,0,0,1" Padding="32,6,14,6">
+                      <Grid ColumnDefinitions="4,Auto,*,Auto">
+                        <Border Grid.Column="0" CornerRadius="2"
+                                Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                        <CheckBox Grid.Column="1" Margin="8,0" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                  Command="{Binding ToggleCommand}" />
+                        <StackPanel Grid.Column="2" Spacing="1">
+                          <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                          <TextBlock Text="{Binding ReasonText}" FontSize="11" Foreground="{DynamicResource Ink2Brush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                          <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                          <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <!-- Hidden / Incompatible Mods -->
+              <ItemsControl IsVisible="{Binding IsHiddenExpanded}" ItemsSource="{Binding HiddenMods}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BuilderModRowViewModel">
+                    <Border Background="#14F59E0B" BorderBrush="{DynamicResource BorderSoftBrush}"
+                            BorderThickness="0,0,0,1" Padding="32,6,14,6">
+                      <Grid ColumnDefinitions="4,Auto,*,Auto">
+                        <Border Grid.Column="0" CornerRadius="2"
+                                Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                        <CheckBox Grid.Column="1" Margin="8,0" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                  Command="{Binding ToggleCommand}" />
+                        <StackPanel Grid.Column="2" Spacing="1">
+                          <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                          <TextBlock Text="{Binding ReasonText}" FontSize="11" Foreground="{DynamicResource Ink2Brush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                          <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                          <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <!-- Other / Niche Slots -->
+    <TextBlock Text="ДРУГОЕ · ЧАСТНЫЕ МОДЫ (GECKOLIB, CREATE, ФИКСЫ И ДИАГНОСТИКА)"
+               FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Ink2Brush}" Margin="2,4,0,0" />
+    <ItemsControl ItemsSource="{Binding OtherBuckets}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:BuilderBucketViewModel">
+          <Border Classes="ui-block" Margin="0,0,0,8">
+            <StackPanel>
+              <Border Background="{DynamicResource SurfaceSubBrush}" BorderBrush="{DynamicResource BorderSoftBrush}"
+                      BorderThickness="0,0,0,1" Padding="14,8">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Ink1Brush}" VerticalAlignment="Center" />
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button Classes="ui-btn" IsVisible="{Binding ShowSelectLeaderButton}"
+                            Command="{Binding SelectLeaderCommand}" Content="+ Лидер" />
+                    <Button Classes="ui-btn" IsVisible="{Binding HasSelected}"
+                            Command="{Binding ClearSlotCommand}" Content="Очистить" />
+                    <Button Classes="ui-btn" IsVisible="{Binding HasHidden}"
+                            Command="{Binding ToggleHiddenCommand}" Content="{Binding HiddenToggleLabel}" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+              <ItemsControl ItemsSource="{Binding PrimaryCoreMods}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BuilderModRowViewModel">
+                    <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="14,7">
+                      <Grid ColumnDefinitions="4,Auto,*,Auto">
+                        <Border Grid.Column="0" CornerRadius="2"
+                                Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                        <CheckBox Grid.Column="1" Margin="8,0" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                  Command="{Binding ToggleCommand}" />
+                        <StackPanel Grid.Column="2" Spacing="1">
+                          <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                          <TextBlock Text="{Binding ReasonText}" FontSize="11" Foreground="{DynamicResource Ink2Brush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                          <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                          <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

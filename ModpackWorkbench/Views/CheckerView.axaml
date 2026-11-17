@@ -1,0 +1,302 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ModpackWorkbench.ViewModels"
+             xmlns:conv="using:ModpackWorkbench.Converters"
+             x:Class="ModpackWorkbench.Views.CheckerView">
+
+  <StackPanel Spacing="14">
+    <!-- Top Toolbar Card -->
+    <Border Classes="ui-block" Padding="14">
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBlock Text="Чекер сборки" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" />
+            <TextBlock FontSize="12" FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink2Brush}" VerticalAlignment="Center">
+              <Run Text="{Binding TotalCount}" />
+              <Run Text=" модов" />
+            </TextBlock>
+          </StackPanel>
+
+          <WrapPanel Grid.Column="1" Orientation="Horizontal">
+            <WrapPanel.Styles>
+              <Style Selector="WrapPanel > :is(Control)">
+                <Setter Property="Margin" Value="0,0,6,4" />
+              </Style>
+            </WrapPanel.Styles>
+            <Button Classes="ui-btn-accent" Command="{Binding ScanModsFolderCommand}" Content="Сканировать папку mods/" />
+            <Button Classes="ui-btn" Command="{Binding ToggleImportCommand}" Content="Импортировать списком" />
+            <Button Classes="ui-btn" Command="{Binding CopyTreeListCommand}" Content="Копировать дерево + ссылки" />
+            <Button Classes="ui-btn" Command="{Binding CopyNamesListCommand}" Content="Копировать названия" />
+            <Button Classes="ui-btn" Command="{Binding ClearAssemblyCommand}" Content="Очистить" />
+          </WrapPanel>
+        </Grid>
+
+        <!-- Inline Import Panel -->
+        <Border IsVisible="{Binding ImportOpen}" Background="{DynamicResource SurfaceSubBrush}"
+                BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="6" Padding="10">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Вставьте список модов (по строкам, через запятую или .jar имена)"
+                       FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+            <TextBox Classes="ui-input" AcceptsReturn="True" Height="100"
+                     FontFamily="Consolas, monospace"
+                     Text="{Binding ImportText, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="Emberbium&#x0a;Nvidium&#x0a;FerriteCore&#x0a;ModernFix" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource Ink2Brush}">
+                <Run Text="Распознано: " />
+                <Run Text="{Binding ImportMatchedCount}" FontWeight="Bold" Foreground="#A7F3D0" />
+                <Run Text=" · не найдено: " />
+                <Run Text="{Binding ImportUnmatchedCount}" Foreground="#FDE68A" />
+              </TextBlock>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Classes="ui-btn" Command="{Binding ApplyImportMergeCommand}" Content="Добавить к текущей" />
+                <Button Classes="ui-btn-accent" Command="{Binding ApplyImportReplaceCommand}" Content="Заменить сборку" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Tier Counters + View Mode + Quick Search Add -->
+        <Grid ColumnDefinitions="*,Auto,280">
+          <WrapPanel Grid.Column="0" Orientation="Horizontal">
+            <WrapPanel.Styles>
+              <Style Selector="WrapPanel > :is(Control)">
+                <Setter Property="Margin" Value="0,0,6,4" />
+              </Style>
+            </WrapPanel.Styles>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="all">
+              <TextBlock><Run Text="Все (" /><Run Text="{Binding TotalCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="green">
+              <TextBlock Foreground="#10B981"><Run Text="Зелёные (" /><Run Text="{Binding GreenCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="lime">
+              <TextBlock Foreground="#84CC16"><Run Text="Светло-зелёные (" /><Run Text="{Binding LimeCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="yellow">
+              <TextBlock Foreground="#FBBF24"><Run Text="Жёлтые (" /><Run Text="{Binding YellowCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="orange">
+              <TextBlock Foreground="#F97316"><Run Text="Оранжевые (" /><Run Text="{Binding OrangeCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+            <Button Classes="ui-btn" Command="{Binding SetTierFilterCommand}" CommandParameter="red">
+              <TextBlock Foreground="#FB7185"><Run Text="Красные (" /><Run Text="{Binding RedCount}" /><Run Text=")" /></TextBlock>
+            </Button>
+          </WrapPanel>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="8,0">
+            <Button Classes="ui-btn" Command="{Binding SetViewModeCommand}" CommandParameter="tree" Content="Мод → Аддоны" />
+            <Button Classes="ui-btn" Command="{Binding SetViewModeCommand}" CommandParameter="status" Content="По статусу" />
+          </StackPanel>
+
+          <TextBox Grid.Column="2" Classes="ui-input"
+                   Text="{Binding AddSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                   Watermark="Добавить мод по названию / задаче..." />
+        </Grid>
+
+        <!-- Quick Add Search Suggestions -->
+        <Border IsVisible="{Binding SearchSuggestions.Count}"
+                Background="{DynamicResource SurfaceSolidBrush}"
+                BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="6" Padding="6">
+          <ItemsControl ItemsSource="{Binding SearchSuggestions}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="*,Auto" Margin="4,2">
+                  <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource Ink2Brush}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="ui-btn-accent" Padding="8,4"
+                          Command="{Binding $parent[UserControl].DataContext.AddQuickModCommand}"
+                          CommandParameter="{Binding}" Content="+ Добавить" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+
+        <!-- Feedback Banner -->
+        <Border IsVisible="{Binding FeedbackBanner, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                Background="#262563EB" BorderBrush="#6660A5FA" BorderThickness="1" CornerRadius="6" Padding="10,6">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding FeedbackBanner}" FontSize="12" Foreground="#BFDBFE" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Classes="ui-btn" Padding="6,2" Command="{Binding DismissFeedbackCommand}" Content="✕" />
+          </Grid>
+        </Border>
+
+        <!-- Presets Quick Strip -->
+        <WrapPanel Orientation="Horizontal">
+          <WrapPanel.Styles>
+            <Style Selector="WrapPanel > :is(Control)">
+              <Setter Property="Margin" Value="0,0,6,4" />
+            </Style>
+          </WrapPanel.Styles>
+          <TextBlock Text="Сборки:" VerticalAlignment="Center" FontSize="11.5" Foreground="{DynamicResource Ink3Brush}" />
+          <ItemsControl ItemsSource="{Binding Presets}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="6" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Classes="ui-btn"
+                        Command="{Binding $parent[UserControl].DataContext.LoadPresetCommand}"
+                        CommandParameter="{Binding}"
+                        Content="{Binding Name}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- Diagnostics Panel -->
+    <Border Classes="ui-block" IsVisible="{Binding HasAnyIssues}" Padding="0">
+      <StackPanel>
+        <Border Background="{DynamicResource SurfaceSubBrush}" BorderBrush="{DynamicResource BorderLineBrush}"
+                BorderThickness="0,0,0,1" Padding="14,10">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="Возможные проблемы и лучшие решения"
+                       FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+              <TextBlock IsVisible="{Binding CriticalIssuesCount}" FontSize="12" FontFamily="Consolas, monospace" Foreground="#FB7185">
+                <Run Text="Критично: " /><Run Text="{Binding CriticalIssuesCount}" />
+              </TextBlock>
+              <TextBlock IsVisible="{Binding OrangeIssuesCount}" FontSize="12" FontFamily="Consolas, monospace" Foreground="#F97316">
+                <Run Text="Риск режима: " /><Run Text="{Binding OrangeIssuesCount}" />
+              </TextBlock>
+              <TextBlock IsVisible="{Binding YellowIssuesCount}" FontSize="12" FontFamily="Consolas, monospace" Foreground="#FBBF24">
+                <Run Text="Замечания: " /><Run Text="{Binding YellowIssuesCount}" />
+              </TextBlock>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Diagnostics}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:DiagnosticIssueViewModel">
+              <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="14,10">
+                <StackPanel Spacing="6">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding SeverityLabel}" FontSize="12" FontWeight="Bold"
+                                 Foreground="{Binding SeverityColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                      <TextBlock Text="·" Foreground="{DynamicResource Ink3Brush}" />
+                      <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                      <ItemsControl IsVisible="{Binding IsChoiceConflict}" ItemsSource="{Binding Choices}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Button Classes="ui-btn"
+                                    Command="{Binding $parent[ItemsControl].DataContext.ApplyChoiceCommand}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{Binding Label}" />
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                      <Button Classes="ui-btn-accent" IsVisible="{Binding HasAddFix}"
+                              Command="{Binding ApplyAddFixCommand}" Content="+ Добавить зависимости" />
+                      <Button Classes="ui-btn" IsVisible="{Binding HasRemoveFix}"
+                              Command="{Binding ApplyRemoveFixCommand}" Content="Убрать" />
+                    </StackPanel>
+                  </Grid>
+
+                  <TextBlock Text="{Binding BetweenText}" FontSize="11.5" FontFamily="Consolas, monospace"
+                             Foreground="{DynamicResource AccentTextBrush}" />
+                  <TextBlock Text="{Binding Problem}" FontSize="12" Foreground="{DynamicResource Ink2Brush}" TextWrapping="Wrap" />
+                  <TextBlock FontSize="12" Foreground="{DynamicResource Ink1Brush}" TextWrapping="Wrap">
+                    <Run Text="Решение: " FontWeight="SemiBold" />
+                    <Run Text="{Binding BestSolution}" />
+                  </TextBlock>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- Missing Core Slots -->
+    <Border Classes="ui-block" IsVisible="{Binding HasMissingCoreSlots}" Padding="14">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Не заполнены базовые слоты оптимизации:" FontSize="13" FontWeight="SemiBold" Foreground="#FDE68A" />
+        <ItemsControl ItemsSource="{Binding MissingCoreSlots}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource Ink2Brush}">
+                  <Run Text="{Binding GroupTitle}" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                  <Run Text=" → рекомендуется " />
+                  <Run Text="{Binding LeaderName}" FontWeight="SemiBold" Foreground="#A7F3D0" />
+                </TextBlock>
+                <Button Grid.Column="1" Classes="ui-btn"
+                        Command="{Binding $parent[UserControl].DataContext.AddMissingSlotLeaderCommand}"
+                        CommandParameter="{Binding}" Content="+ Добавить лидера" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- Mod List Rows -->
+    <Border Classes="ui-block" Padding="0">
+      <ItemsControl ItemsSource="{Binding Rows}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:CheckerRowViewModel">
+            <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="0,0,0,1" Padding="14,8">
+              <Grid ColumnDefinitions="4,Auto,*,Auto">
+                <Border Grid.Column="0" CornerRadius="2"
+                        Background="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                  <TextBlock IsVisible="{Binding IsChild}" Text="↳" FontFamily="Consolas, monospace"
+                             FontSize="12" Foreground="{DynamicResource AccentTextBrush}" Width="24" TextAlignment="Right" />
+                  <TextBlock IsVisible="{Binding RootIndex, Converter={x:Static ObjectConverters.IsNotNull}}"
+                             Text="{Binding RootIndex, StringFormat={}{0}.}"
+                             FontFamily="Consolas, monospace" FontSize="11.5"
+                             Foreground="{DynamicResource Ink3Brush}" Width="24" TextAlignment="Right" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Spacing="2">
+                  <WrapPanel Orientation="Horizontal">
+                    <Button Command="{Binding OpenDetailsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Cursor="Hand">
+                      <TextBlock Text="{Binding Name}" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink1Brush}" />
+                    </Button>
+                    <TextBlock IsVisible="{Binding RelationLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Text="{Binding RelationLabel}" Margin="8,2,0,0" FontSize="11"
+                               Foreground="{DynamicResource AccentTextBrush}" />
+                    <TextBlock IsVisible="{Binding ShowRowMeta}" Text="{Binding Platform}" Margin="8,2,0,0" FontSize="11"
+                               Foreground="{DynamicResource Ink3Brush}" />
+                    <TextBlock IsVisible="{Binding UpdatedLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Text="{Binding UpdatedLabel}" Margin="6,2,0,0" FontSize="11"
+                               FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink3Brush}" />
+                  </WrapPanel>
+
+                  <TextBlock IsVisible="{Binding HasReasonLine}" Text="{Binding DisplayLine}"
+                             FontSize="12" TextTrimming="CharacterEllipsis"
+                             Foreground="{Binding TierColorHex, Converter={x:Static conv:HexToBrushConverter.Instance}}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <Button Classes="ui-btn" Command="{Binding OpenDetailsCommand}" Content="Инфо" />
+                  <Button Classes="ui-btn" Command="{Binding OpenCurseForgeCommand}" Content="CF" />
+                  <Button Classes="ui-btn" Command="{Binding RemoveCommand}" Content="Убрать" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Border>
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ModpackWorkbench.ViewModels"
+             x:Class="ModpackWorkbench.Views.ThemeConfiguratorView">
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="12" Margin="16">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Grid.Column="0" Text="Настройки темы и фона" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Ink1Brush}" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Classes="ui-btn" Command="{Binding ResetThemeCommand}" Content="Сброс" />
+      </Grid>
+
+      <!-- Mode -->
+      <Border Classes="ui-block" Padding="10">
+        <StackPanel Spacing="6">
+          <ToggleSwitch IsChecked="{Binding IsDarkMode}" OnContent="Тёмная тема" OffContent="Светлая тема" />
+          <CheckBox IsChecked="{Binding Animate}" Content="Анимация фона" FontSize="12" />
+          <CheckBox IsChecked="{Binding MultiFractal}" Content="Мультифрактальные слои" FontSize="12" />
+        </StackPanel>
+      </Border>
+
+      <!-- Presets -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="Пресеты оформления" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Ink2Brush}" />
+        <ItemsControl ItemsSource="{Binding Presets}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Classes="ui-btn" HorizontalAlignment="Stretch" Margin="0,0,0,4"
+                      Command="{Binding $parent[UserControl].DataContext.ApplyPresetCommand}"
+                      CommandParameter="{Binding Config}"
+                      Content="{Binding Label}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- Sliders -->
+      <Border Classes="ui-block" Padding="10">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Угол свечения" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="0" Maximum="360" Value="{Binding Angle}" />
+
+          <TextBlock Text="Насыщенность фона" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="0" Maximum="100" Value="{Binding Saturation}" />
+
+          <TextBlock Text="Прозрачность панелей" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="0" Maximum="100" Value="{Binding PanelTransparency}" />
+
+          <TextBlock Text="Яркость фракталов" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="0" Maximum="100" Value="{Binding FractalOpacity}" />
+
+          <TextBlock Text="Масштаб фракталов" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="10" Maximum="100" Value="{Binding FractalScale}" />
+
+          <TextBlock Text="Неопределённость фракталов" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <Slider Minimum="0" Maximum="100" Value="{Binding FractalUncertainty}" />
+        </StackPanel>
+      </Border>
+
+      <!-- Fractal & Layout Selectors -->
+      <Border Classes="ui-block" Padding="10">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Основной фрактал" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <ComboBox ItemsSource="{Binding FractalOptions}"
+                    SelectedValue="{Binding SelectedFractal}"
+                    SelectedValueBinding="{Binding Key}"
+                    DisplayMemberBinding="{Binding Label}" HorizontalAlignment="Stretch" />
+
+          <TextBlock Text="Вторичный фрактал" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <ComboBox ItemsSource="{Binding FractalOptions}"
+                    SelectedValue="{Binding SelectedFractalSecondary}"
+                    SelectedValueBinding="{Binding Key}"
+                    DisplayMemberBinding="{Binding Label}" HorizontalAlignment="Stretch" />
+
+          <TextBlock Text="Скругление блоков" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <ComboBox ItemsSource="{Binding BlockRadiusOptions}"
+                    SelectedItem="{Binding SelectedBlockRadius}" HorizontalAlignment="Stretch" />
+
+          <TextBlock Text="Стиль панелей" FontSize="11.5" Foreground="{DynamicResource Ink2Brush}" />
+          <ComboBox ItemsSource="{Binding BlockStyleOptions}"
+                    SelectedItem="{Binding SelectedBlockStyle}" HorizontalAlignment="Stretch" />
+        </StackPanel>
+      </Border>
+
+      <!-- Display Flags -->
+      <Border Classes="ui-block" Padding="10">
+        <StackPanel Spacing="4">
+          <CheckBox IsChecked="{Binding ShowDescriptions}" Content="Показывать описания в строках" FontSize="12" />
+          <CheckBox IsChecked="{Binding ShowRowMeta}" Content="Метаданные (Sinytra, даты)" FontSize="12" />
+          <CheckBox IsChecked="{Binding ShowRowNumbers}" Content="Нумерация в чекере" FontSize="12" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

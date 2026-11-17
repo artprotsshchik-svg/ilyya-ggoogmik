@@ -1,0 +1,67 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ModpackWorkbench.App"
+             RequestedThemeVariant="Dark">
+
+  <Application.Resources>
+    <SolidColorBrush x:Key="SurfacePageBrush" Color="#0B0A0F" />
+    <SolidColorBrush x:Key="SurfaceHeaderBrush" Color="#C80D0C13" />
+    <SolidColorBrush x:Key="SurfacePanelBrush" Color="#B80F0E16" />
+    <SolidColorBrush x:Key="SurfaceSolidBrush" Color="#16151E" />
+    <SolidColorBrush x:Key="SurfaceControlBrush" Color="#16FFFFFF" />
+    <SolidColorBrush x:Key="SurfaceSubBrush" Color="#0EFFFFFF" />
+    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#1CFFFFFF" />
+    <SolidColorBrush x:Key="BorderLineBrush" Color="#24FFFFFF" />
+    <SolidColorBrush x:Key="BorderSoftBrush" Color="#16FFFFFF" />
+    <SolidColorBrush x:Key="Ink1Brush" Color="#F4F4F6" />
+    <SolidColorBrush x:Key="Ink2Brush" Color="#B6B6C2" />
+    <SolidColorBrush x:Key="Ink3Brush" Color="#848494" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="AccentTextBrush" Color="#60A5FA" />
+    <CornerRadius x:Key="BlockCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <Style Selector="Border.ui-block">
+      <Setter Property="Background" Value="{DynamicResource SurfacePanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderLineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource BlockCornerRadius}" />
+    </Style>
+
+    <Style Selector="Button.ui-btn">
+      <Setter Property="Background" Value="{DynamicResource SurfaceControlBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink1Brush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderLineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.ui-btn-accent">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="Padding" Value="12,6" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="TextBox.ui-input">
+      <Setter Property="Background" Value="{DynamicResource SurfaceSubBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink1Brush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderLineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+  </Application.Styles>
+</Application>

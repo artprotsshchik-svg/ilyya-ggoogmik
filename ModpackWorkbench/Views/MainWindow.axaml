@@ -1,0 +1,153 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ModpackWorkbench.ViewModels"
+        xmlns:views="using:ModpackWorkbench.Views"
+        xmlns:controls="using:ModpackWorkbench.Controls"
+        x:Class="ModpackWorkbench.Views.MainWindow"
+        Title="Верстак сборок"
+        Width="1360" Height="860"
+        MinWidth="960" MinHeight="640"
+        Background="{DynamicResource SurfacePageBrush}"
+        Foreground="{DynamicResource Ink1Brush}">
+
+  <Grid>
+    <!-- Fractal + Corner Radial Glow Backdrop -->
+    <controls:FractalBackdropControl ThemeConfig="{Binding ThemeConfig}" />
+
+    <DockPanel LastChildFill="True">
+      <!-- Top Header + Metadata Strip -->
+      <StackPanel DockPanel.Dock="Top">
+        <Border Background="{DynamicResource SurfaceHeaderBrush}"
+                BorderBrush="{DynamicResource BorderLineBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="20,0">
+          <Grid ColumnDefinitions="Auto,*,Auto" Height="52">
+            <!-- Brand -->
+            <Button Grid.Column="0"
+                    Command="{Binding SelectTabCommand}"
+                    CommandParameter="assembler"
+                    Background="Transparent" BorderThickness="0" Padding="0"
+                    VerticalAlignment="Center" Cursor="Hand">
+              <TextBlock Text="Верстак сборок"
+                         FontSize="15" FontWeight="Bold"
+                         Foreground="{DynamicResource Ink1Brush}" />
+            </Button>
+
+            <!-- Navigation Tabs -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Center" Spacing="20"
+                        VerticalAlignment="Stretch">
+              <Button Command="{Binding SelectTabCommand}" CommandParameter="catalog"
+                      Background="Transparent" BorderThickness="0,0,0,2"
+                      BorderBrush="{Binding IsCatalogTab, Converter={x:Static views:MainWindow.TabBorderConverter}}"
+                      CornerRadius="0" Padding="4,12" Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="Каталог" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Ink1Brush}" />
+                  <TextBlock Text="{Binding CatalogCount}" FontSize="11"
+                             FontFamily="Consolas, monospace"
+                             Foreground="{DynamicResource AccentTextBrush}"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+
+              <Button Command="{Binding SelectTabCommand}" CommandParameter="assembler"
+                      Background="Transparent" BorderThickness="0,0,0,2"
+                      BorderBrush="{Binding IsAssemblerTab, Converter={x:Static views:MainWindow.TabBorderConverter}}"
+                      CornerRadius="0" Padding="4,12" Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="Клипание" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Ink1Brush}" />
+                  <TextBlock Text="{Binding AssemblyCount}" FontSize="11"
+                             FontFamily="Consolas, monospace"
+                             Foreground="{DynamicResource AccentTextBrush}"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+
+              <Button Command="{Binding SelectTabCommand}" CommandParameter="presets"
+                      Background="Transparent" BorderThickness="0,0,0,2"
+                      BorderBrush="{Binding IsPresetsTab, Converter={x:Static views:MainWindow.TabBorderConverter}}"
+                      CornerRadius="0" Padding="4,12" Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="Сборки" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Ink1Brush}" />
+                  <TextBlock Text="{Binding PresetsCount}" FontSize="11"
+                             FontFamily="Consolas, monospace"
+                             Foreground="{DynamicResource AccentTextBrush}"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+
+              <Button Command="{Binding SelectTabCommand}" CommandParameter="checker"
+                      Background="Transparent" BorderThickness="0,0,0,2"
+                      BorderBrush="{Binding IsCheckerTab, Converter={x:Static views:MainWindow.TabBorderConverter}}"
+                      CornerRadius="0" Padding="4,12" Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="Чекер" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Ink1Brush}" />
+                  <TextBlock Text="{Binding AssemblyCount}" FontSize="11"
+                             FontFamily="Consolas, monospace"
+                             Foreground="{DynamicResource AccentTextBrush}"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+
+            <!-- Actions: Theme & Quick Checker -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Button Classes="ui-btn"
+                      Command="{Binding ToggleThemeDrawerCommand}"
+                      Content="Тема и фон" />
+              <Button Classes="ui-btn-accent"
+                      Command="{Binding SelectTabCommand}"
+                      CommandParameter="checker"
+                      Content="Чекер" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Metadata Strip -->
+        <Border Background="{DynamicResource SurfaceSubBrush}"
+                BorderBrush="{DynamicResource BorderSoftBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="20,4">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="База:" FontSize="11" Foreground="{DynamicResource Ink2Brush}" />
+              <TextBlock Text="{Binding DbUpdatedAt}" FontSize="11" FontWeight="SemiBold"
+                         FontFamily="Consolas, monospace" Foreground="{DynamicResource Ink1Brush}" />
+              <TextBlock Text="· Сохранено:" FontSize="11" Foreground="{DynamicResource Ink2Brush}" />
+              <TextBlock Text="{Binding LastSavedDate}" FontSize="11" FontWeight="SemiBold"
+                         FontFamily="Consolas, monospace" Foreground="{DynamicResource AccentTextBrush}" />
+            </StackPanel>
+            <TextBlock Grid.Column="1"
+                       Text="Forge 1.20.1 · Клипание и Чекер синхронизированы"
+                       FontSize="11" Foreground="{DynamicResource Ink3Brush}" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- Main Tab Content + Optional Theme Drawer -->
+      <Grid ColumnDefinitions="*,Auto">
+        <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+          <Panel Margin="20,16" MaxWidth="1280" HorizontalAlignment="Stretch">
+            <views:CatalogView DataContext="{Binding Catalog}" IsVisible="{Binding $parent[Window].DataContext.IsCatalogTab}" />
+            <views:AssemblyBuilderView DataContext="{Binding AssemblyBuilder}" IsVisible="{Binding $parent[Window].DataContext.IsAssemblerTab}" />
+            <views:PresetsView DataContext="{Binding Presets}" IsVisible="{Binding $parent[Window].DataContext.IsPresetsTab}" />
+            <views:CheckerView DataContext="{Binding Checker}" IsVisible="{Binding $parent[Window].DataContext.IsCheckerTab}" />
+          </Panel>
+        </ScrollViewer>
+
+        <!-- Theme Configurator Side Panel -->
+        <Border Grid.Column="1" Width="340"
+                IsVisible="{Binding IsThemeDrawerOpen}"
+                Background="{DynamicResource SurfaceSolidBrush}"
+                BorderBrush="{DynamicResource BorderLineBrush}"
+                BorderThickness="1,0,0,0">
+          <views:ThemeConfiguratorView DataContext="{Binding ThemeConfigurator}" />
+        </Border>
+      </Grid>
+    </DockPanel>
+  </Grid>
+</Window>

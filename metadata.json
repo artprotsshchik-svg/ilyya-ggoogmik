@@ -1,0 +1,6 @@
+{
+  "name": "Верстак сборок — C# + Avalonia UI",
+  "description": "Порт проекта Верстак сборок на C# (.NET 8) и Avalonia UI 11 (MVVM) с проверкой конфликтов модов, конструктором сборок, чекером и тестами.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

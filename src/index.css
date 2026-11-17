@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --surface-page: #0B0A0F;
+    --surface-header: rgba(13, 12, 19, 0.86);
+    --surface-panel: rgba(15, 14, 22, 0.78);
+    --surface-solid: #16151E;
+    --surface-control: rgba(255, 255, 255, 0.08);
+    --surface-sub: rgba(255, 255, 255, 0.05);
+    --surface-hover: rgba(255, 255, 255, 0.11);
+    --border-line: rgba(255, 255, 255, 0.13);
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --ink-1: #F4F4F6;
+    --ink-2: #B6B6C2;
+    --ink-3: #848494;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-text: #60A5FA;
+  }
+
+  body {
+    background-color: var(--surface-page);
+    color: var(--ink-1);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.ui-block {
+  border-radius: 8px;
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-line);
+}
+
+.ui-control {
+  border-radius: 6px;
+}
